@@ -1,0 +1,77 @@
+---
+# deploy on coolify for dev/staging and digital ocean on prod
+name: Trigger Deployment
+on:
+  # TODO: uncomment if running on coolify/DigitalOcean
+  # workflow_run:
+  #   workflows:
+  #     - "Build and Push Image"
+  #   branches:
+  #     - main
+  #     - staging
+  #     - dev
+  #   types:
+  #     - completed
+  workflow_dispatch:
+
+jobs:
+
+  # NOTE: deployment will depend on what platform you are deploying to, but these are some common ones we in RND use (either of the following):
+
+  ############### COOLIFY (selfhosted) ################
+  deploy-dev-staging-coolify:
+    runs-on: ubuntu-latest
+    if: ${{ (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master') && github.event.workflow_run.conclusion == 'success' }}
+    steps:
+      # NOTE: Needs COOLIFY_WEBHOOK and COOLIFY_TOKEN
+      # - You need to create a Coolify API Token and add it to your GitHub repository secrets.
+      # - Get the proper webhook endpoint from Coolify (Your resource / Webhook menu) and add it to your GitHub repository secrets.
+      - name: Deploy to Coolify
+        run: |
+          curl --request GET '${{ secrets.COOLIFY_WEBHOOK }}' --header 'Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}'
+
+  deploy-prod-coolify:
+    runs-on: ubuntu-latest
+    if: ${{ (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master') && github.event.workflow_run.conclusion == 'success' }}
+    steps:
+      # NOTE: Needs COOLIFY_WEBHOOK and COOLIFY_TOKEN
+      # - You need to create a Coolify API Token and add it to your GitHub repository secrets.
+      # - Get the proper webhook endpoint from Coolify (Your resource / Webhook menu) and add it to your GitHub repository secrets.
+      - name: Deploy to Coolify
+        run: |
+          curl --request GET '${{ secrets.COOLIFY_WEBHOOK }}' --header 'Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}'
+
+  ############## DIGITAL OCEAN's APP PLATFORM ###########
+  # deploy-prod-digital-ocean-app-platform:
+  #   runs-on: ubuntu-latest
+  #   if: ${{ (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master') && github.events.workflow_run.conclusion == 'success' }} 
+  #   steps:
+  #     - name: Install doctl
+  #       run: |
+  #         curl -sL https://github.com/digitalocean/doctl/releases/download/v1.99.0/doctl-1.99.0-linux-amd64.tar.gz | tar xz
+  #         sudo mv doctl /usr/local/bin
+  #     - name: Authenticate doctl
+  #       env:
+  #         DIGITALOCEAN_ACCESS_TOKEN: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+  #       run: doctl auth init -t $DIGITALOCEAN_ACCESS_TOKEN
+  #     - name: Trigger redeploy on App Platform
+  #       run: |
+  #         doctl apps redeploy ${{ secrets.DO_APP_ID }}
+
+  ############## via SSH to VM (e.g. Droplet, EC2, or any selfhosted machine with SSH access) ###########
+  # NOTE: need HOST, USER, and PRIVATE_SSH_KEY as secrets (see Settings -> Actions -> Repository Secrets)
+  # requires deploy.sh script (OPTIONAL: compose.yml if using docker compose) for deployment on the VM
+
+  # deploy-prod-ssh:
+  #   runs-on: ubuntu-latest
+  #   if: ${{ (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master') && github.event.workflow_run.conclusion == 'success' }}
+  #   steps:
+  #     - name: Deploy to a VM via SSH
+  #       uses: appleboy/ssh-action@v1
+  #       with:
+  #         host: ${{ secrets.HOST }}
+  #         username: ${{ secrets.USER || 'root' }}
+  #         key: ${{ secrets.PRIVATE_SSH_KEY }}
+  #         script: |
+  #           cd /root
+  #           ./deploy.sh
