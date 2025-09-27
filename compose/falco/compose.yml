@@ -1,0 +1,11 @@
+---
+services:
+  falco:
+    image: falcosecurity/falco:latest
+    privileged: true
+    volumes:
+      - /var/run/docker.sock:/host/var/run/docker.sock
+      - /proc:/host/proc:ro
+      - /etc:/host/etc:ro
+    stdin_open: true # optional: -it flag
+    tty: true # optional: -it flag
