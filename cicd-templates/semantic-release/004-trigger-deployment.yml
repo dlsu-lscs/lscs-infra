@@ -74,3 +74,80 @@ jobs:
   #           -d "{\"content\": \"🚀 New release deployed: ${{ github.event.release.tag_name }}\"}" \
   #           "$DISCORD_WEBHOOK"
 
+  #################### RAILWAY ####################
+  # deploy-prod-railway:
+  #   runs-on: ubuntu-latest
+  #   if: github.event.release.prerelease == false
+  #   steps:
+  #     # NOTE: Needs RAILWAY_TOKEN as a secret
+  #     - name: Install Railway CLI
+  #       run: npm i -g @railway/cli
+  #     - name: Deploy to Railway
+  #       env:
+  #         RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+  #       # The --service flag is optional if you only have one service in your project
+  #       run: railway up --service ${{ secrets.RAILWAY_SERVICE_NAME }}
+
+  #################### RENDER #####################
+  # deploy-prod-render:
+  #   runs-on: ubuntu-latest
+  #   if: github.event.release.prerelease == false
+  #   steps:
+  #     # NOTE: Needs RENDER_DEPLOY_HOOK as a secret.
+  #     # Get this from your service's settings page on Render.
+  #     - name: Deploy to Render
+  #       run: curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK }}
+
+  #################### NETLIFY ####################
+  # NOTE: Netlify is primarily for static sites and serverless functions.
+  # This example uses a build hook to trigger a new build and deploy on Netlify.
+  # deploy-prod-netlify:
+  #   runs-on: ubuntu-latest
+  #   if: github.event.release.prerelease == false
+  #   steps:
+  #     # NOTE: Needs NETLIFY_BUILD_HOOK as a secret.
+  #     # Get this from your site's build & deploy settings on Netlify.
+  #     - name: Deploy to Netlify
+  #       run: curl -X POST -d '{}' ${{ secrets.NETLIFY_BUILD_HOOK }}
+
+  ################# CLOUDFLARE PAGES ################
+  # NOTE: Cloudflare Pages is for deploying static sites.
+  # You will need a build step to generate your static assets before deploying.
+  # deploy-prod-cloudflare-pages:
+  #   runs-on: ubuntu-latest
+  #   if: github.event.release.prerelease == false
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v4
+  #
+  #     # This is an example build step. Replace with your project's build command.
+  #     # - name: Build static site
+  #     #   run: npm install && npm run build
+  #
+  #     - name: Deploy to Cloudflare Pages
+  #       uses: cloudflare/pages-action@v1
+  #       with:
+  #         apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+  #         accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+  #         projectName: ${{ secrets.CLOUDFLARE_PROJECT_NAME }} # e.g., 'my-awesome-site'
+  #         directory: 'dist' # The directory of static assets to deploy
+  #         # Optional: The branch to associate the deployment with.
+  #         # branch: 'main'
+
+  ################# CLOUDFLARE WORKERS ################
+  # NOTE: This assumes you have a wrangler.toml file in your repository.
+  # deploy-prod-cloudflare-workers:
+  #   runs-on: ubuntu-latest
+  #   if: github.event.release.prerelease == false
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v4
+  #
+  #     - name: Install Wrangler CLI
+  #       run: npm install -g wrangler
+  #
+  #     - name: Deploy to Cloudflare Workers
+  #       env:
+  #         CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+  #       run: wrangler deploy
+
