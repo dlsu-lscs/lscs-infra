@@ -1,0 +1,33 @@
+---
+name: Semantic Release
+
+on:
+  workflow_run:
+    workflows: ["Build and Push Image"]
+    types:
+      - completed
+
+jobs:
+  semantic-release:
+    if: ${{ (github.event.workflow_run.head_branch == 'main' || github.event.workflow_run.head_branch == 'master') && github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+      id-token: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install dependencies
+        run: npm install -g semantic-release @semantic-release/github @semantic-release/changelog @semantic-release/git conventional-changelog-conventionalcommits
+      - name: Semantic Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npx semantic-release

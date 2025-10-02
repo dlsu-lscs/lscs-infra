@@ -62,22 +62,3 @@ jobs:
           vuln-type: 'os,library'
           severity: 'CRITICAL,HIGH'
         continue-on-error: true
-
-  create-release:
-    needs: build-push-image
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - name: Generate tag
-        id: tag
-        run: echo "tag=v$(date +%Y.%m.%d)-${{ github.run_number }}" >> $GITHUB_OUTPUT
-
-      - name: Create Release
-        uses: softprops/action-gh-release@v1
-        with:
-          tag_name: ${{ steps.tag.outputs.tag }}
-          name: "Release ${{ steps.tag.outputs.tag }}"
-          body: "Automated release from workflow run ${{ github.run_number }}"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
