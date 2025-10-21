@@ -1,0 +1,58 @@
+# Build stage
+FROM python:3.13-slim AS builder
+
+# Install system dependencies needed for building
+RUN apt-get update && apt-get install -y \
+  wget \
+  curl \
+  gcc \
+  && rm -rf /var/lib/apt/lists/*
+
+# Install uv
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
+
+# Set working directory
+WORKDIR /app
+
+# Copy dependency files
+COPY pyproject.toml uv.lock ./
+
+# Install dependencies using uv
+RUN uv sync --frozen --no-dev
+
+# Copy application files
+COPY main.py ./
+
+# Runtime stage
+FROM python:3.13-slim
+
+# Install minimal runtime dependencies
+RUN apt-get update && apt-get install -y \
+  wget \
+  curl \
+  && rm -rf /var/lib/apt/lists/*
+
+# Create non-root user
+RUN groupadd -r appuser && useradd -r -g appuser appuser
+
+# Set working directory
+WORKDIR /app
+
+# Copy virtual environment from builder
+COPY --from=builder /app/.venv /app/.venv
+
+# Copy application files from builder
+COPY --from=builder /app/main.py ./
+
+# Change ownership to non-root user
+RUN chown -R appuser:appuser /app
+
+# Switch to non-root user
+USER appuser
+
+# Set environment variables
+ENV PATH="/app/.venv/bin:$PATH"
+ENV PYTHONUNBUFFERED=1
+
+# Run the application
+CMD ["python", "main.py"]
