@@ -1,0 +1,22 @@
+- name: Install Dokploy (Open-source alternative to Vercel, Netlify, Heroku)
+  hosts: "{{ target_hosts | default('lscs') }}"
+  connection: "{{ target_connection | default('ssh') }}"
+  gather_facts: true
+
+  tasks:
+    - name: Register Host User
+      ansible.builtin.set_fact:
+      host_user: "{{ ansible_user_id }}"
+      when: host_user is not defined
+
+    - name: Run system_update role
+      ansible.builtin.include_role:
+        name: system_update
+
+      # curl -sSL https://dokploy.com/install.sh | sh
+    - name: Install Dokploy via install script
+      ansible.builtin.shell:
+        cmd: curl -sSL https://dokploy.com/install.sh | sh
+      become: true
+
+  # open ufw port 3000 (for ip:port access) - should disable in the future
