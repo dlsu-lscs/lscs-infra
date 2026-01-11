@@ -6,7 +6,7 @@
 
 - name: ssh authorized_keys | Add public key to current user
   ansible.posix.authorized_key:
-    user: "{{ ansible_user_id }}"
+    user: "{{ user_name }}"
     state: present
     key: "{{ lookup('ansible.builtin.file', lookup('ansible.builtin.env', 'HOME') + '/.ssh/id_ed25519.pub') }}"
     exclusive: false
