@@ -21,7 +21,7 @@
 
     - name: Register Host User
       ansible.builtin.set_fact:
-        host_user: "{{ ansible_user_id }}"
+        host_user: "{{ ansible_facts['user_id'] }}"
       when: host_user is not defined
 
     - name: Run system_update role
@@ -58,6 +58,7 @@
         user: "{{ user_name }}"
         state: present
         key: "{{ lookup('ansible.builtin.file', '~/.ssh/id_ed25519.pub') }}"
+      when: not ansible_check_mode # skip in check mode
 
     - name: Grant sudo privileges to the new user
       ansible.builtin.copy:
@@ -85,3 +86,4 @@
   #   # for the new user to be created
   #   user_name: admin # replace username
   #   user_password: mysecretpassword # replace password
+
