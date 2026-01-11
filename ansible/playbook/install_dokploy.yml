@@ -6,7 +6,7 @@
   tasks:
     - name: Register Host User
       ansible.builtin.set_fact:
-      host_user: "{{ ansible_user_id }}"
+        host_user: "{{ ansible_facts['user_id'] }}"
       when: host_user is not defined
 
     - name: Run system_update role
@@ -18,5 +18,11 @@
       ansible.builtin.shell:
         cmd: curl -sSL https://dokploy.com/install.sh | sh
       become: true
+      register: dokploy_install_result
+      changed_when: "'Installation completed' in dokploy_install_result.stdout"
+
+    - name: Show Dokploy installation logs
+      ansible.builtin.debug:
+        var: dokploy_install_result.stdout_lines
 
   # open ufw port 3000 (for ip:port access) - should disable in the future

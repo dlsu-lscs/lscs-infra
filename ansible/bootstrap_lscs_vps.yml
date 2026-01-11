@@ -75,11 +75,16 @@
     - fail2ban
     - ufw
     - vim
+    # TODO: add bashrc role
 
   tasks:
     - name: Complete Message
       ansible.builtin.debug:
         msg: "Bootstrap Done!"
+
+    - name: Dokploy Notice
+      ansible.builtin.debug:
+        msg: "If installing dokploy, then run the install_dokploy.yml playbook"
 
   # NOTE: This is better to be set during execution (see ansible/README.md)
   # vars:
