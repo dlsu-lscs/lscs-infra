@@ -1,10 +1,20 @@
 # How to run?
 
-1. Make sure ansible is installed in your local machine.
-    - Follow install [guide](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html#installing-and-upgrading-ansible-with-pip)
+1. Install Ansible on your local machine.
 
-    > [!NOTE]
-    > Python is required to be installed to run `ansible`
+> [!NOTE]
+> Python and pipx (better than pip) is required to run `ansible`
+
+- Make sure to install python and pipx via your package manager first
+
+- Use `pipx` (Recommended)
+    - Keeps Ansible isolated.
+
+    ```bash
+    pipx install ansible
+    # Install passlib for password hashing support
+    pipx inject ansible passlib
+    ```
 
 2. Run `bootstrap_lscs_vps.yml` playbook
 
@@ -49,3 +59,9 @@
     ```
 
     - Then you can use `file.key` as a key in `./group_vars/all.yml`
+
+## Troubleshooting
+
+- **"Unable to encrypt nor hash, passlib must be installed. No module named 'passlib'."**
+    - using the `password_hash()` function needs `passlib` in the ansible server (not on the target host)
+    - Install in the machine where ansible is installed with: `pipx inject ansible passlib`
