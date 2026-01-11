@@ -26,7 +26,7 @@
     state: absent
   become: true
 
-- name: Vim | Copy .vimrc template
+- name: Vim | Copy .vimrc template to root
   ansible.builtin.copy:
     src: templates/.vimrc
     dest: "{{ ansible_facts['user_dir'] }}/.vimrc"
@@ -34,3 +34,11 @@
     group: root
     mode: '0644' # -rw-r--r-
   become: true
+
+- name: Vim | Copy .vimrc template to new user
+  ansible.builtin.copy:
+    src: templates/.vimrc
+    dest: "/home/{{ user_name }}/.vimrc"
+    owner: "{{ user_name }}"
+    group: "{{ user_name }}"
+    mode: '0644' # -rw-r--r-

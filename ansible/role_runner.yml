@@ -1,4 +1,3 @@
----
 # NOTE: READ INSTRUCTIONS BELOW 
 # - for roles to run individually, remote hosts, etc.
 #
@@ -18,8 +17,8 @@
 #  ansible-playbook -i 'remotehost.example.com,' role_runner.yml --ask-become-pass -e "target_hosts=remotehost.example.com"
 #
 - name: Role Runner
-  hosts: "{{ target_hosts | default('localhost') }}"
-  # connection: "{{ target_connection | default('local') }}"
+  hosts: "{{ target_hosts | default('lscs') }}"
+  connection: "{{ target_connection | default('ssh') }}"
   gather_facts: true
 
   pre_tasks:
@@ -49,17 +48,4 @@
 
   # you can add roles to run here
   roles:
-    - system_update_role
-
-  # tasks:
-  #   - name: Link .ideavimrc
-  #     ansible.builtin.file:
-  #       src: "{{ ansible_user_dir }}/dotfiles/.ideavimrc"
-  #       dest: "{{ ansible_user_dir }}/.ideavimrc"
-  #       state: link
-  #
-  #   - name: Link .vimrc
-  #     ansible.builtin.file:
-  #       src: "{{ ansible_user_dir }}/dotfiles/.vimrc"
-  #       dest: "{{ ansible_user_dir }}/.vimrc"
-  #       state: link
+    - vim
