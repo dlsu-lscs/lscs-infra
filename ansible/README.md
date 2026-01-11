@@ -16,11 +16,17 @@
     ansible-playbook --ask-become-pass bootstrap_lscs_vps.yml -i inventory/hosts.ini -e "user_name=USERNAME user_password=YOUR_SECURE_PASSWORD"
     ```
 
-    - if you used `ansible-vault` to encrypt something, then add `--ask-vault-pass` flag:
+    - If you used `ansible-vault` to encrypt something, then add `--ask-vault-pass` flag:
 
     ```bash
     ansible-playbook --ask-become-pass --ask-vault-pass bootstrap_lscs_vps.yml -i ./inventory/hosts.ini -e "user_name=USERNAME user_password=YOUR_SECURE_PASSWORD"
     ```
+
+    > [!NOTE]
+    > If there is a "Module not found" error, then `ansible.posix` is not installed
+    > Install it with: `ansible-galaxy collection install -r collection/requirements.yml`
+
+---
 
 ## Ansible Vault Encryption (via `ansible-vault`)
 
