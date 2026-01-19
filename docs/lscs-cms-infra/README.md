@@ -149,8 +149,13 @@ S3_ENDPOINT=https://s3.api.dlsu-lscs.org
 S3_REGION=garage # this is from garage.toml (see Advanced tab in the Garage deployment in Dokploy), "garage" is the default value
 
 CMS_URL=https://cms.app.dlsu-lscs.org/api
-CMS_API_KEY=
+CMS_API_KEY=<get-from-cms-dashboard>
 ```
+
+> [!IMPORTANT]
+> To get `CMS_API_KEY`, you need to create a user in the admin dashboard in LSCS CMS Dashboard
+>
+> So for now, you can leave it as empty, we'll go back to it in the next steps
 
 2. Run migrations for the database (LSCS CMS DB)
 
@@ -166,4 +171,22 @@ pnpm run migrate
 pnpm run migrate:status
 ```
 
-3. If environment variables are filled up properly, then deploy the LSCS CMS application
+3. If environment variables are filled up properly (excluding `CMS_API_KEY`), then deploy the LSCS CMS application
+
+> [!NOTE]
+> Make sure the migrations worked as expected.
+
+4. Create admin (Role: `admin`, Domain: `global`) account:
+
+```
+Email: rnd@dlsu-lscs.org
+Password: any-secure-password-or-check-rnd-bitwarden
+```
+
+5. Users -> Create New -> Give any values -> Enable API Key -> Copy API Key
+
+- This API Key will be the value in `CMS_API_KEY`
+
+6. Add the copied API Key value for the `CMS_API_KEY` in the Environment tab in LSCS CMS deployment
+
+7. Redeploy the application (Click "Deploy")
