@@ -68,12 +68,23 @@ AUTH_USER_PASS=
 >
 > **This is important for docker to read the "$" properly.**
 
-2. Then deploy - click "Deploy" in Dokploy
+2. Get the `garage.toml` file and edit `root_domain`.
+
+- Go to Advanced -> Volumes -> Click the "Edit icon"
+- REQUIRED - under `[s3_api]`, edit the `root_domain` to `root_domain = ".s3.api.dlsu-lscs.org"` (or the one in the DNS configuration above)
+- OPTIONAL if serving files via this object storage - under `[s3_web]`, edit the `root_domain` to `root_domain = ".web.dlsu-lscs.org"` (or the one in the DNS configuration above)
+
+- Then "Update"
+
+> [!IMPORTANT]
+> The "." is important in `root_domain = ".s3.api.dlsu-lscs.org"`
+
+3. Then deploy - click "Deploy" in Dokploy
 
 > [!IMPORTANT]
 > Make sure that there are no errors (you can login to the WebUI, etc.)
 >
-> **If you encounter an error, resolve it and make sure to REDEPLOY (click "Deploy" again) for the changes to be applied.**
+> **If you encounter an error, resolve it and make sure to REDEPLOY (click "Deploy" again) or "Stop" for 5 seconds then "Deploy" for the changes to be applied.**
 
 ### Setup Nodes, Keys, and Buckets in Garage WebUI
 
