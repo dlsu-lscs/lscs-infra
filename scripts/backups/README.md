@@ -18,6 +18,14 @@ docs here
 
 docs here
 
+### TODOs
+
+- [ ] connect to lscs-links mongodb database
+    - go to LSCS Infra dashboard Dokploy (`dash.dlsu-lscs.org`)
+    - connect via external host (search the "why", instead of internal)
+- [ ] dump existing data to a directory (search about mongodump)
+- [ ] run backup script as cronjob every week
+
 ---
 
 ## LSCS CMS Backup Documentation
