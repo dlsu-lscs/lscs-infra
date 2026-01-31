@@ -15,3 +15,6 @@ ssh_keys:
 # id_ed25519.pub: !vault |
 #   $ANSIBLE_VAULT;1.1;AES256
 #   643034363562383163633030636630633 ...
+
+# machine_os: "debian" # Supported: "debian", "redhat", "archlinux"
+python_version: "3.12"

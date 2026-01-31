@@ -1,0 +1,56 @@
+---
+- name: Python | Check if uv is installed
+  ansible.builtin.stat:
+    path: ~/.local/bin/uv
+  register: uv_stat
+
+- name: Python | Install curl for Debian
+  ansible.builtin.apt:
+    name: curl
+    state: present
+    update_cache: yes
+  become: true
+  when: machine_os == 'debian' and not uv_stat.stat.exists
+
+- name: Python | Install curl for RedHat
+  ansible.builtin.dnf:
+    name: curl
+    state: present
+  become: true
+  when: machine_os == 'redhat' and not uv_stat.stat.exists
+
+- name: Python | Install curl for Archlinux
+  ansible.builtin.pacman:
+    name: curl
+    state: present
+  become: true
+  when: machine_os == 'archlinux' and not uv_stat.stat.exists
+
+- name: Python | Install uv
+  ansible.builtin.shell:
+    cmd: "curl -LsSf https://astral.sh/uv/install.sh | sh"
+  args:
+    creates: ~/ .local/bin/uv
+  when: not uv_stat.stat.exists
+
+- name: Python | Add uv to .bashrc PATH
+  ansible.builtin.lineinfile:
+    path: ~/.bashrc
+    line: 'export PATH="$HOME/.cargo/bin:$PATH"'
+    create: yes
+    state: present
+    regexp: '^export PATH="\$HOME/\.cargo/bin:\$PATH"$'
+
+- name: Python | Check installed python versions
+  ansible.builtin.command:
+    cmd: ~/.local/bin/uv python list
+  register: installed_pythons
+  changed_when: false
+  failed_when: false
+
+- name: Python | Install Python with uv
+  ansible.builtin.command:
+    cmd: ~/.local/bin/uv python install {{ python_version }}
+  when: "python_version not in installed_pythons.stdout"
+  register: python_install_result
+  changed_when: "'Installed' in python_install_result.stdout"

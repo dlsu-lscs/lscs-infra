@@ -1,0 +1,10 @@
+---
+- name: Install Python using uv
+  hosts: all
+  gather_facts: false
+  vars:
+    # This can be overridden in the command line
+    # e.g., ansible-playbook install_python.yml -e "python_version=3.11"
+    python_version: "3.12"
+  roles:
+    - role: python
