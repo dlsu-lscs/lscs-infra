@@ -1,0 +1,71 @@
+---
+- name: Python | Detect machine_os when missing
+  ansible.builtin.set_fact:
+    machine_os: "{{ ansible_facts['os_family'] | lower }}"
+  when: machine_os is not defined
+  changed_when: false
+
+- name: Python | Validate supported OS
+  ansible.builtin.assert:
+    that:
+      - machine_os in supported_machine_os
+    fail_msg: "machine_os must be one of: {{ supported_machine_os | join(', ') }}"
+
+- name: Python | Ensure curl is installed (Debian)
+  ansible.builtin.apt:
+    name: curl
+    state: present
+    update_cache: true
+  become: true
+  when: machine_os == 'debian'
+
+- name: Python | Ensure curl is installed (RedHat)
+  ansible.builtin.dnf:
+    name: curl
+    state: present
+  become: true
+  when: machine_os == 'redhat'
+
+- name: Python | Ensure curl is installed (Archlinux)
+  ansible.builtin.pacman:
+    name: curl
+    state: present
+    update_cache: true
+  become: true
+  when: machine_os == 'archlinux'
+
+- name: Python | Ensure uv bin directory exists
+  ansible.builtin.file:
+    path: "{{ uv_bin_dir }}"
+    state: directory
+    mode: "0755"
+
+- name: Python | Check if uv is installed
+  ansible.builtin.stat:
+    path: "{{ uv_bin_path }}"
+  register: uv_stat
+
+- name: Python | Install uv
+  ansible.builtin.shell: "curl -LsSf {{ uv_install_url }} | sh"
+  args:
+    creates: "{{ uv_bin_path }}"
+  when: not uv_stat.stat.exists
+
+- name: Python | Add uv to PATH in .bashrc
+  ansible.builtin.lineinfile:
+    path: "{{ ansible_env.HOME }}/.bashrc"
+    regexp: '^export PATH="\$HOME/\.local/bin:\$PATH"$'
+    line: "{{ uv_path_line }}"
+    create: true
+    state: present
+
+- name: Python | List installed Python versions via uv
+  ansible.builtin.command: "{{ uv_bin_path }} python list"
+  register: uv_python_list
+  changed_when: false
+
+- name: Python | Install Python {{ python_version }}
+  ansible.builtin.command: "{{ uv_bin_path }} python install {{ python_version }}"
+  register: uv_python_install
+  when: python_version not in uv_python_list.stdout
+  changed_when: "'installed' in uv_python_install.stdout.lower()"
