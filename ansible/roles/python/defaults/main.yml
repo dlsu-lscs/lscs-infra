@@ -1,0 +1,11 @@
+---
+python_version: "3.12"
+
+uv_install_url: "https://astral.sh/uv/install.sh"
+uv_bin_dir: "{{ ansible_env.HOME }}/.local/bin"
+uv_bin_path: "{{ uv_bin_dir }}/uv"
+uv_path_line: 'export PATH="$HOME/.local/bin:$PATH"'
+supported_machine_os:
+  - debian
+  - redhat
+  - archlinux

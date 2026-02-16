@@ -1,0 +1,14 @@
+---
+- name: Install Python using uv
+  hosts: "{{ target_hosts | default('lscs') }}"
+  connection: "{{ target_connection | default('ssh') }}"
+  gather_facts: true
+
+  pre_tasks:
+    - name: Detect OS and put in machine_os variable when not provided
+      ansible.builtin.set_fact:
+        machine_os: "{{ ansible_facts['os_family'] | lower }}"
+      when: machine_os is not defined
+
+  roles:
+    - role: python
