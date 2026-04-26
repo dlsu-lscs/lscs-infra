@@ -15,5 +15,8 @@ COPY --from=builder /app/package*.json ./
 EXPOSE 3000
 USER node
 HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
+# Note: alpine images do not include 'curl' by default. 
+# If you use curl for healthchecks, you must add 'RUN apk add --no-cache curl.' 
+# or use 'wget', which is included in the base image via BusyBox.
   CMD curl -f http://localhost:3000/health || exit 1
 CMD ["node", "dist/main.js"]
