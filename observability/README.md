@@ -42,14 +42,23 @@ Dokploy Docker Compose supports **Git as a source**, which preserves the directo
 
 > Dokploy will clone the repo and use the directory structure as-is, so all relative volume mounts work automatically.
 
-### 3. Update Environment Variables
+### 3. Configure Environment Variables
 
-Use Dokploy's **Environment Variables** tab to override compose defaults:
+Copy `.env.example` to `.env` and edit it:
+
+```bash
+cp .env.example .env
+```
+
+Set your values in `.env`:
 
 | Variable | Default | Action |
 |---|---|---|
+| `GF_SECURITY_ADMIN_USER` | `admin` | Change if desired |
 | `GF_SECURITY_ADMIN_PASSWORD` | `CHANGE_ME` | Set a strong password |
 | `GF_SERVER_ROOT_URL` | `https://grafana.yourdomain.com` | Update to your actual domain |
+
+> **Important:** Add `.env` to your `.gitignore` — never commit secrets to version control.
 
 ### 4. Update Discord Webhook
 
@@ -88,9 +97,9 @@ After Grafana is up:
 ## Quick Setup
 
 1. Push this directory to a Git repository
-2. Create a Docker Compose app in Dokploy from **Git source**
-3. Set subdirectory to `docs/observability`
-4. Update `GF_SECURITY_ADMIN_PASSWORD` via Environment Variables
+2. Copy `.env.example` to `.env` and set your credentials
+3. Create a Docker Compose app in Dokploy from **Git source**
+4. Set subdirectory to `docs/observability`
 5. Update Discord webhook in `alertmanager/alertmanager.yml`
 6. Configure domains (see step 5 above)
 7. Import Grafana dashboards (see step 6 above)
