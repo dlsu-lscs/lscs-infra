@@ -60,15 +60,19 @@ Set your values in `.env`:
 
 > **Important:** Add `.env` to your `.gitignore` — never commit secrets to version control.
 
-### 4. Configure Discord Webhook
+### 4. Update Discord Webhook
 
-Add your Discord webhook URL to `.env`:
+Replace the webhook URL in `alertmanager/alertmanager.yml`:
 
+```yaml
+receivers:
+  - name: 'discord'
+    webhook_configs:
+      - url: 'https://discord.com/api/webhooks/YOUR_WEBHOOK_ID/YOUR_WEBHOOK_TOKEN'
+        send_resolved: true
 ```
-DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/YOUR_WEBHOOK_ID/YOUR_WEBHOOK_TOKEN
-```
 
-The webhook URL is injected into the Alertmanager config at startup — it never appears in the committed config file.
+> This file is in `.gitignore` so it won't be committed.
 
 ### 5. Configure Domains
 

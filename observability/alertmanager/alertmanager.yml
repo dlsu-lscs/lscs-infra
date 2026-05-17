@@ -11,6 +11,10 @@ route:
 
 receivers:
   - name: 'discord'
-    webhook_configs:
-      - url: 'DISCORD_WEBHOOK_URL_PLACEHOLDER'
+    slack_configs:
+      # 1. Use api_url instead of url
+      # 2. Make SURE your Discord webhook URL ends with /slack
+      - api_url: '${DISCORD_WEBHOOK_URL}'
         send_resolved: true
+        # 3. channel is a required field for slack_configs, even though Discord ignores it
+        channel: '#alerts'

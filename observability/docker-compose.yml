@@ -1,9 +1,8 @@
+---
 services:
   prometheus:
     image: prom/prometheus:latest
     restart: unless-stopped
-    ports:
-      - 9090
     volumes:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - ./prometheus/alerts:/etc/prometheus/alerts:ro
@@ -19,8 +18,6 @@ services:
   grafana:
     image: grafana/grafana:latest
     restart: unless-stopped
-    ports:
-      - 3000
     volumes:
       - grafana_data:/var/lib/grafana
       - ./grafana/provisioning:/etc/grafana/provisioning:ro
@@ -34,14 +31,13 @@ services:
   alertmanager:
     image: prom/alertmanager:latest
     restart: unless-stopped
-    ports:
-      - 9093
     volumes:
-      - ./alertmanager/alertmanager.yml.tmpl:/etc/alertmanager/alertmanager.yml.tmpl:ro
+      - ./alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
     env_file:
       - .env
-    entrypoint: >
-      /bin/sh -c "sed 's|DISCORD_WEBHOOK_URL_PLACEHOLDER|$$DISCORD_WEBHOOK_URL|g' /etc/alertmanager/alertmanager.yml.tmpl > /etc/alertmanager/alertmanager.yml && exec alertmanager --config.file=/etc/alertmanager/alertmanager.yml"
+    command:
+      - '--config.file=/etc/alertmanager/alertmanager.yml'
+      - '--config.expand-env'
     networks:
       - dokploy-network
 
