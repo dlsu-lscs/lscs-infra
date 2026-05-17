@@ -26,8 +26,8 @@ services:
       - grafana_data:/var/lib/grafana
       - ./grafana/provisioning:/etc/grafana/provisioning:ro
     environment:
-      - GF_SECURITY_ADMIN_USER=admin
-      - GF_SECURITY_ADMIN_PASSWORD=CHANGE_ME
+      - GF_SECURITY_ADMIN_USER=rnd@dlsu-lscs.org
+      - GF_SECURITY_ADMIN_PASSWORD=rnd14231423
       - GF_SERVER_ROOT_URL=https://grafana.yourdomain.com
       - GF_AUTH_ANONYMOUS_ENABLED=false
     networks:
