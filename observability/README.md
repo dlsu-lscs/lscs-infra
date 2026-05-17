@@ -37,7 +37,7 @@ Dokploy Docker Compose supports **Git as a source**, which preserves the directo
 2. Set **Source Type** to **Git**
 3. Enter your repository URL
 4. Set the **Branch** (e.g., `main`)
-5. Set **Subdirectory** to `docs/observability` (or wherever your compose file lives)
+5. Set **Subdirectory** to `observability` (or wherever your compose file lives)
 6. Click **Deploy**
 
 > Dokploy will clone the repo and use the directory structure as-is, so all relative volume mounts work automatically.
@@ -60,19 +60,15 @@ Set your values in `.env`:
 
 > **Important:** Add `.env` to your `.gitignore` — never commit secrets to version control.
 
-### 4. Update Discord Webhook
+### 4. Configure Discord Webhook
 
-Replace the webhook URL in `alertmanager/alertmanager.yml` in your repo:
+Add your Discord webhook URL to `.env`:
 
-```yaml
-receivers:
-  - name: 'discord'
-    webhook_configs:
-      - url: 'https://discord.com/api/webhooks/YOUR_WEBHOOK_ID/YOUR_WEBHOOK_TOKEN'
-        send_resolved: true
+```
+DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/YOUR_WEBHOOK_ID/YOUR_WEBHOOK_TOKEN
 ```
 
-Commit and push — Dokploy will redeploy on the next push (if auto-deploy is enabled) or you can trigger a manual redeploy.
+The webhook URL is injected into the Alertmanager config at startup — it never appears in the committed config file.
 
 ### 5. Configure Domains
 
@@ -88,21 +84,32 @@ Commit and push — Dokploy will redeploy on the next push (if auto-deploy is en
 After Grafana is up:
 
 1. Log in to Grafana (`admin` / your password)
-2. Go to **Dashboards** → **Import**
-3. Import these dashboard IDs:
-   - **Node Exporter Full**: `1860`
-   - **cAdvisor Exporter**: `14282`
-4. Select the Prometheus data source when prompted
+2. **Add the Prometheus data source** (if not auto-configured):
+   - Go to **Connections** → **Data Sources** → **Add data source**
+   - Select **Prometheus**
+   - Set the URL to `http://prometheus:9090` (internal Docker network)
+   - Click **Save & Test** — it should show "Data source is working"
+3. **Import the Node Exporter dashboard**:
+   - Go to **Dashboards** → **Import** (or use the `+` icon → **Import**)
+   - In the **Import via grafana.com** field, enter `1860`
+   - Click **Load**
+   - Give the dashboard a name (or keep the default "Node Exporter Full")
+   - Under **Prometheus**, select the data source you added in step 2
+   - Click **Import**
+4. **Import the cAdvisor dashboard**:
+   - Repeat step 3, but enter dashboard ID `14282`
+   - Select the same Prometheus data source
+   - Click **Import**
+5. Verify both dashboards appear under **Dashboards** → **Browse** and show live data
 
 ## Quick Setup
 
 1. Push this directory to a Git repository
-2. Copy `.env.example` to `.env` and set your credentials
+2. Copy `.env.example` to `.env` and set your credentials + Discord webhook URL
 3. Create a Docker Compose app in Dokploy from **Git source**
-4. Set subdirectory to `docs/observability`
-5. Update Discord webhook in `alertmanager/alertmanager.yml`
-6. Configure domains (see step 5 above)
-7. Import Grafana dashboards (see step 6 above)
+4. Set subdirectory to `observability`
+5. Configure domains (see step 5 above)
+6. Import Grafana dashboards (see step 6 above)
 
 ## Getting Discord Webhook URL
 
