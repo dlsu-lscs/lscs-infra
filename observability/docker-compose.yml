@@ -31,13 +31,18 @@ services:
   alertmanager:
     image: prom/alertmanager:latest
     restart: unless-stopped
+    # volumes:
+    #   - ./alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
     volumes:
-      - ./alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+      # Mount the template as read-only
+      - ./alertmanager/alertmanager.template.yml:/etc/alertmanager/alertmanager.template.yml:ro
+    command:
+      - '/bin/sh'
+      - '-c'
+      # Replace the placeholder with the env variable, output to a new file, and start alertmanager
+      - 'sed "s|DISCORD_WEBHOOK_URL_PLACEHOLDER|$$DISCORD_WEBHOOK_URL|g" /etc/alertmanager/alertmanager.template.yml > /tmp/alertmanager.yml && /bin/alertmanager --config.file=/tmp/alertmanager.yml'
     env_file:
       - .env
-    command:
-      - '--config.file=/etc/alertmanager/alertmanager.yml'
-      - '--config.expand-env'
     networks:
       - dokploy-network
 
