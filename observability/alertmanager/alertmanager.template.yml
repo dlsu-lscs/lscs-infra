@@ -15,3 +15,13 @@ receivers:
       - api_url: '${DISCORD_WEBHOOK_URL}'
         send_resolved: true
         channel: '#alerts'
+        # These fields prevent Discord from rejecting the attachment as malformed
+        title: '{{ template "slack.default.title" . }}'
+        title_link: ''
+        text: >-
+          {{ range .Alerts }}
+          *Alert:* {{ .Annotations.summary }}
+          *Description:* {{ .Annotations.description }}
+          *Severity:* {{ .Labels.severity }}
+          {{ end }}
+        color: '{{ if eq .Status "firing" }}danger{{ else }}good{{ end }}'

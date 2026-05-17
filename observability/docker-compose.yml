@@ -80,6 +80,10 @@ services:
       - /dev/disk/:/dev/disk:ro
     devices:
       - /dev/kmsg
+    # command:
+    #   - '--docker_only=true'
+    #   - '--housekeeping_interval=10s'
+    #   - '--max_housekeeping_interval=15s'
     networks:
       - dokploy-network
 
