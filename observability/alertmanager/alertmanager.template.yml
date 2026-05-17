@@ -11,6 +11,7 @@ route:
 
 receivers:
   - name: 'discord'
-    webhook_configs:
-      - url: 'https://discord.com/api/webhooks/YOUR_WEBHOOK_ID/YOUR_WEBHOOK_TOKEN'
+    slack_configs:
+      - api_url: '${DISCORD_WEBHOOK_URL}'
         send_resolved: true
+        channel: '#alerts'

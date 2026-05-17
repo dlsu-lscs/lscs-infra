@@ -28,21 +28,27 @@ services:
     networks:
       - dokploy-network
 
+  # --- Init container: renders the template into a shared volume ----
+  alertmanager-config:
+    image: alpine:latest
+    env_file:
+      - .env
+    volumes:
+      - ./alertmanager/alertmanager.template.yml:/template/alertmanager.template.yml:ro
+      - ./alertmanager/generate-config.sh:/generate-config.sh:ro
+      - alertmanager_config:/output
+    command: ["sh", "/generate-config.sh"]
+
   alertmanager:
     image: prom/alertmanager:latest
     restart: unless-stopped
-    # volumes:
-    #   - ./alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
-    volumes:
-      # Mount the template as read-only
-      - ./alertmanager/alertmanager.template.yml:/etc/alertmanager/alertmanager.template.yml:ro
+    depends_on:
+      alertmanager-config:
+        condition: service_completed_successfully # waits for the init container to exit cleanly
     command:
-      - '/bin/sh'
-      - '-c'
-      # Replace the placeholder with the env variable, output to a new file, and start alertmanager
-      - 'sed "s|DISCORD_WEBHOOK_URL_PLACEHOLDER|$$DISCORD_WEBHOOK_URL|g" /etc/alertmanager/alertmanager.template.yml > /tmp/alertmanager.yml && /bin/alertmanager --config.file=/tmp/alertmanager.yml'
-    env_file:
-      - .env
+      - '--config.file=/etc/alertmanager/alertmanager.yml'
+    volumes:
+      - alertmanager_config:/etc/alertmanager:ro # reads from the shared volume
     networks:
       - dokploy-network
 
@@ -80,6 +86,7 @@ services:
 volumes:
   prometheus_data:
   grafana_data:
+  alertmanager_config: # shared between init container and alertmanager
 
 networks:
   dokploy-network:
