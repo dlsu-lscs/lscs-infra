@@ -1,0 +1,19 @@
+name: Trigger Deployment
+
+on:
+  workflow_run:
+    workflows: ["Build & Push Image"]
+    types: [completed]
+    branches: [main]
+
+jobs:
+  deploy:
+    name: Deploy to Coolify
+    runs-on: ubuntu-latest
+    if: github.event.workflow_run.conclusion == 'success'
+    steps:
+      - name: Trigger Coolify deployment
+        run: |
+          curl -fsSL -X POST "${{ secrets.COOLIFY_WEBHOOK_URL }}" \
+            -H "Content-Type: application/json" \
+            -d '{"status": "success"}'

@@ -1,0 +1,65 @@
+# =============================================================
+# Copy relevant sections into your project's pyproject.toml
+# =============================================================
+
+# ---------- Ruff (linter + formatter) ----------
+[tool.ruff]
+target-version = "py312"
+line-length = 88
+
+[tool.ruff.lint]
+select = [
+  "E",    # pycodestyle errors
+  "W",    # pycodestyle warnings
+  "F",    # pyflakes
+  "I",    # isort
+  "N",    # pep8-naming
+  "UP",   # pyupgrade
+  "B",    # flake8-bugbear
+  "S",    # flake8-bandit (security)
+  "A",    # flake8-builtins
+  "C4",   # flake8-comprehensions
+  "T20",  # flake8-print
+  "SIM",  # flake8-simplify
+  "TCH",  # flake8-type-checking
+  "RUF",  # ruff-specific rules
+]
+ignore = ["T201"]  # allow print() if needed
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101"]  # allow assert in tests
+
+# ---------- Pytest ----------
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = [
+  "--strict-markers",
+  "--tb=short",
+  "-q",
+  "--no-header",
+]
+
+# ---------- Coverage ----------
+[tool.coverage.run]
+source = ["src"]
+branch = true
+
+[tool.coverage.report]
+fail_under = 80
+show_missing = true
+exclude_lines = [
+  "pragma: no cover",
+  "if TYPE_CHECKING:",
+  "if __name__ == .__main__.",
+]
+
+[tool.coverage.html]
+directory = "htmlcov"
+
+# ---------- Mypy ----------
+[tool.mypy]
+python_version = "3.12"
+strict = true
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
