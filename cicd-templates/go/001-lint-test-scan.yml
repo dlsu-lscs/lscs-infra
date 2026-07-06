@@ -1,0 +1,143 @@
+name: Go CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+  security-events: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ===========================================================
+  # 1. Lint
+  # ===========================================================
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.22"
+
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v4
+        with:
+          version: latest
+
+      - name: go vet
+        run: go vet ./...
+
+  # ===========================================================
+  # 2. Test & Coverage
+  # ===========================================================
+  test:
+    name: Test & Coverage
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.22"
+
+      - name: Run tests with coverage
+        run: |
+          go test -race -coverprofile=coverage.out -covermode=atomic ./...
+
+      - name: Display coverage
+        run: go tool cover -func=coverage.out
+
+      - name: Upload coverage to Codecov
+        if: always()
+        uses: codecov/codecov-action@v4
+        with:
+          files: coverage.out
+          fail_ci_if_error: false
+
+  # ===========================================================
+  # 3. Security Scanning
+  # ===========================================================
+  security:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.22"
+
+      - name: govulncheck
+        run: |
+          go install golang.org/x/vuln/cmd/govulncheck@latest
+          govulncheck ./...
+
+      - name: gosec
+        uses: securego/gosec@master
+        with:
+          args: ./...
+
+      - name: Trivy filesystem scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: fs
+          scan-ref: .
+          severity: CRITICAL,HIGH
+          exit-code: 1
+
+  codeql:
+    name: CodeQL Analysis
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: github/codeql-action/init@v3
+        with:
+          languages: go
+
+      - uses: github/codeql-action/analyze@v3
+
+  # ===========================================================
+  # [FUTURE] Auto-fix job — uncomment and set PAT to enable
+  # ===========================================================
+  # auto-fix:
+  #   name: Auto-fix lint issues
+  #   if: github.event_name == 'pull_request'
+  #   runs-on: ubuntu-latest
+  #   permissions:
+  #     contents: write
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #       with:
+  #         ref: ${{ github.head_ref }}
+  #         token: ${{ secrets.PAT }}
+  #
+  #     - uses: actions/setup-go@v5
+  #       with:
+  #         go-version: "1.22"
+  #
+  #     - name: Run golangci-lint fix
+  #       uses: golangci/golangci-lint-action@v4
+  #       with:
+  #         version: latest
+  #         args: --fix
+  #
+  #     - name: Commit fixes
+  #       run: |
+  #         git config --global user.name "github-actions[bot]"
+  #         git config --global user.email "github-actions[bot]@users.noreply.github.com"
+  #         git add -A
+  #         git diff --cached --quiet || git commit -m "fix: auto-fix lint issues [skip ci]"
+  #         git push
