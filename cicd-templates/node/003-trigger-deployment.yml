@@ -8,12 +8,82 @@ on:
 
 jobs:
   deploy:
-    name: Deploy to Coolify
+    name: Deploy
     runs-on: ubuntu-latest
     if: github.event.workflow_run.conclusion == 'success'
     steps:
-      - name: Trigger Coolify deployment
-        run: |
-          curl -fsSL -X POST "${{ secrets.COOLIFY_WEBHOOK_URL }}" \
-            -H "Content-Type: application/json" \
-            -d '{"status": "success"}'
+      # ===========================================================
+      # Choose ONE deployment target below and uncomment it.
+      # ===========================================================
+
+      # --- Coolify ---
+      # - name: Trigger Coolify deployment
+      #   run: |
+      #     curl -fsSL -X POST "${{ secrets.COOLIFY_WEBHOOK_URL }}" \
+      #       -H "Content-Type: application/json" \
+      #       -d '{"status": "success"}'
+
+      # --- Dokploy ---
+      # - name: Trigger Dokploy deployment
+      #   run: |
+      #     curl -fsSL -X POST "${{ secrets.DOKPLOY_WEBHOOK_URL }}" \
+      #       -H "Content-Type: application/json" \
+      #       -H "x-api-key: ${{ secrets.DOKPLOY_API_KEY }}" \
+      #       -d '{"type": "deploy"}'
+
+      # --- SSH (pull + restart) ---
+      # - name: Deploy via SSH
+      #   uses: appleboy/ssh-action@v1
+      #   with:
+      #     host: ${{ secrets.DEPLOY_HOST }}
+      #     username: ${{ secrets.DEPLOY_USER }}
+      #     key: ${{ secrets.DEPLOY_SSH_KEY }}
+      #     script: |
+      #       cd ${{ secrets.DEPLOY_PATH }}
+      #       git pull origin main
+      #       docker compose pull
+      #       docker compose up -d
+
+      # --- AWS ECS (update service) ---
+      # - name: Configure AWS credentials
+      #   uses: aws-actions/configure-aws-credentials@v4
+      #   with:
+      #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #     aws-region: ${{ secrets.AWS_REGION }}
+      #
+      # - name: Deploy to ECS
+      #   run: |
+      #     aws ecs update-service \
+      #       --cluster ${{ secrets.ECS_CLUSTER }} \
+      #       --service ${{ secrets.ECS_SERVICE }} \
+      #       --force-new-deployment
+
+      # --- GCP Cloud Run ---
+      # - name: Authenticate to GCP
+      #   uses: google-github-actions/auth@v2
+      #   with:
+      #     credentials_json: ${{ secrets.GCP_SA_KEY }}
+      #
+      # - name: Deploy to Cloud Run
+      #   run: |
+      #     gcloud run deploy ${{ secrets.CLOUD_RUN_SERVICE }} \
+      #       --image ${{ env.REGISTRY }}/${{ github.repository }}:${{ github.sha }} \
+      #       --region ${{ secrets.GCP_REGION }} \
+      #       --platform managed
+
+      # --- Azure Container Instances ---
+      # - name: Login to Azure
+      #   uses: azure/login@v2
+      #   with:
+      #     creds: ${{ secrets.AZURE_CREDENTIALS }}
+      #
+      # - name: Deploy to ACI
+      #   run: |
+      #     az container create \
+      #       --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
+      #       --name ${{ secrets.AZURE_CONTAINER_NAME }} \
+      #       --image ${{ env.REGISTRY }}/${{ github.repository }}:${{ github.sha }} \
+      #       --ports 80 \
+      #       --dns-name-label ${{ secrets.AZURE_DNS_LABEL }} \
+      #       --restart-policy Always
