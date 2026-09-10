@@ -56,7 +56,7 @@ Set your values in `.env`:
 |---|---|---|
 | `GF_SECURITY_ADMIN_USER` | `admin` | Change if desired |
 | `GF_SECURITY_ADMIN_PASSWORD` | `CHANGE_ME` | Set a strong password |
-| `GF_SERVER_ROOT_URL` | `https://grafana.yourdomain.com` | Update to your actual domain |
+| `GF_SERVER_ROOT_URL` | `https://grafana.o.dlsu-lscs.org` | Update to your actual domain |
 
 > **Important:** Add `.env` to your `.gitignore` — never commit secrets to version control.
 
@@ -78,9 +78,9 @@ receivers:
 
 1. Go to the **Domains** tab of your Docker Compose application
 2. Add domains for each service:
-   - `prometheus.yourdomain.com` → Port `9090`
-   - `grafana.yourdomain.com` → Port `3000`
-   - `alertmanager.yourdomain.com` → Port `9093`
+   - `prometheus.dlsu-lscs.org` → Port `9090`
+   - `grafana.dlsu-lscs.org` → Port `3000`
+   - `alertmanager.dlsu-lscs.org` → Port `9093`
 3. **Redeploy** the application (Docker Compose requires redeploy after domain changes)
 
 ### 6. Import Grafana Dashboards
@@ -126,9 +126,9 @@ After Grafana is up:
 
 Once deployed and DNS is configured:
 
-- **Grafana**: `https://grafana.yourdomain.com`
-- **Prometheus**: `https://prometheus.yourdomain.com`
-- **Alertmanager**: `https://alertmanager.yourdomain.com`
+- **Grafana**: `https://grafana.o.dlsu-lscs.org`
+- **Prometheus**: `https://prometheus.o.dlsu-lscs.org`
+- **Alertmanager**: `https://alertmanager.o.dlsu-lscs.org`
 
 ## Alert Thresholds
 
